@@ -43,6 +43,12 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-mdd-cart-rules.php';
 // Gestión de cancelación de membresías
 require_once MDD_PLUGIN_PATH . 'includes/class-mdd-cancellation-manager.php';
 
+// Gestion administrativa de usuarios
+require_once MDD_PLUGIN_PATH . 'includes/class-mdd-miembros-list-table.php';
+
+require_once MDD_PLUGIN_PATH . 'includes/class-mdd-admin.php';
+
+require_once MDD_PLUGIN_PATH . 'includes/class-mdd-membership-actions.php';
 
 // Al activar el plugin, forzar el registro de endpoints personalizados
 register_activation_hook(__FILE__, function() {
