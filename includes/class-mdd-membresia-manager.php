@@ -45,4 +45,25 @@ function mdd_activar_membresia_usuario( $order_id ) {
 }
 
 
+add_action( 'woocommerce_thankyou', 'mdd_auto_complete_membresia_orders' );
+
+function mdd_auto_complete_membresia_orders( $order_id ) {
+    if ( ! $order_id ) return;
+
+    $order = wc_get_order( $order_id );
+    if ( ! $order ) return;
+
+    foreach ( $order->get_items() as $item ) {
+        $product_id = $item->get_product_id();
+        $duracion_meses = (int) get_post_meta( $product_id, '_mdd_duracion_membresia', true );
+
+        // Si el producto tiene duración de membresía, completamos el pedido
+        if ( $duracion_meses > 0 ) {
+            $order->update_status( 'completed' );
+            break;
+        }
+    }
+}
+
+
 
