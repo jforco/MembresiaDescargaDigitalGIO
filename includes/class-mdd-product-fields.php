@@ -35,31 +35,65 @@ function mdd_anadir_campos_datos_membresia() {
 
     //campo para Membresias permitidas
     $categorias = get_terms( 'product_cat', array( 'hide_empty' => false ) );
-    $opciones_categorias = array();
     
-    foreach ( $categorias as $cat ) {
-        $opciones_categorias[ $cat->term_id ] = $cat->name;
-    }
-
     global $thepostid;
+    // Obtener las categorías permitidas guardadas (siempre debe ser un array)
     $categorias_permitidas = get_post_meta( $thepostid, '_mdd_categorias_permitidas', true );
     if ( ! is_array( $categorias_permitidas ) ) {
         $categorias_permitidas = array();
     }
+    
+    // ID del campo
+    $field_id = '_mdd_categorias_permitidas';
+    
+    ?>
+    <fieldset class="form-field <?php echo esc_attr( $field_id ); ?>_field" style="margin-top: 20px;">
+        
+        <legend class="form-field-title">
+            <?php esc_html_e( 'Categorías incluidas en la Membresía', 'membresia-descarga-digital' ); ?>
+        </legend>
+        
+        <div id="<?php echo esc_attr( $field_id ); ?>_wrapper" class="mdd-categories-wrapper">
+                        
+            <div style="
+                width: 50%; 
+                height: 400px; 
+                overflow-y: scroll; 
+                border: 1px solid #8c8f94; 
+                padding: 10px; 
+                background: #fff;
+                border-radius: 4px
+            ">
+            <?php
+            
+            if ( ! empty( $categorias ) && ! is_wp_error( $categorias ) ) {
+                foreach ( $categorias as $cat ) {
+                    $category_id = $cat->term_id;
+                    $is_checked = in_array( $category_id, $categorias_permitidas );
+                    
+                    printf(
+                        '<span style="display: block; margin-bottom: 5px;">
+                            <input type="checkbox" 
+                                name="%s[]" 
+                                value="%s" 
+                                %s />
+                            %s
+                        </span>',
+                        esc_attr( $field_id ), 
+                        esc_attr( $category_id ),
+                        checked( $is_checked, true, false ),
+                        esc_html( $cat->name )
+                    );
+                }
+            } else {
+                echo '<p>' . esc_html__( 'No hay categorías de producto disponibles.', 'membresia-descarga-digital' ) . '</p>';
+            }
 
-    // 3. Renderizar el campo de selección múltiple
-    woocommerce_wp_select( array(
-        'id'            => '_mdd_categorias_permitidas', 
-        'label'         => __( 'Categorías incluidas en la Membresía', 'membresia-descarga-digital' ),
-        'options'       => $opciones_categorias,
-        'description'   => __( 'Selecciona las categorías de productos a las que esta membresía otorga acceso.', 'membresia-descarga-digital' ),
-        'custom_attributes' => array(
-            'multiple' => 'multiple',
-            'style'    => 'height: 200px;',
-        ),
-        'value'         => $categorias_permitidas,
-    ));
-
+            ?>
+            </div>
+        </div>
+    </fieldset>
+    <?php
     echo '</div>';
 }
 add_action( 'woocommerce_product_options_general_product_data', 'mdd_anadir_campos_datos_membresia' );
