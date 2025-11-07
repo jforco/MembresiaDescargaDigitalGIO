@@ -37,21 +37,25 @@ class MDD_Miembros_List_Table extends WP_List_Table {
         // Enlaces base, apuntando a la misma página administrativa (admin.php?page=mdd-gestionar-membresias)
         $base_url = admin_url('admin.php?page=mdd-gestionar-membresias');
         
-        // 1. Enlace/Botón de CANCELAR
-        $cancel_url = wp_nonce_url( 
-            add_query_arg( 
-                array( 'action' => 'mdd_cancelar', 'user' => $item['id'] ), 
-                $base_url 
+        // Enlace/Botón de MODIFICAR MEMBRESÍA
+        // Esto sigue apuntando a la acción 'mdd_editar_expiracion' que renderiza el formulario de edición.
+        $edit_url = add_query_arg( 
+            array( 
+                'action' => 'mdd_editar_membresia', 
+                'user' => $item['id'] 
             ), 
-            'mdd_cancelar_membresia_' . $item['id'] // Nonce específico por usuario
+            $base_url 
         );
-        $cancel_button = sprintf( 
-            '<a href="%s" class="button button-secondary" style="color:red; margin-bottom: 4px;">%s</a>', 
-            esc_url( $cancel_url ), 
-            __( 'Cancelar', 'membresia-descarga-digital' ) 
+        
+        $edit_button = sprintf( 
+            // Usamos button-primary para el CTA principal
+            '<a href="%s" class="button button-primary">%s</a>', 
+            esc_url( $edit_url ), 
+            __( 'Modificar', 'membresia-descarga-digital' ) // Texto unificado
         );
 
-        return $cancel_button;
+        // Devolvemos solo el botón de edición
+        return $edit_button;
     }
 
     protected function column_default( $item, $column_name ) {
