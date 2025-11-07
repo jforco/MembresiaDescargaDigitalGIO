@@ -4,7 +4,7 @@
  * Plugin Name:       Membresía Descarga Digital - GIO 
  * Plugin URI:        
  * Description:       Gestión de membresías con descargas diarias limitadas en WooCommerce.
- * Version:           1.1.2
+ * Version:           1.1.3
  * Author:            Jonathan Forco
  * Author URI:        
  * License:           GPL-2.0+
