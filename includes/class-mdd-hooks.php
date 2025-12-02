@@ -38,6 +38,8 @@ function mdd_mostrar_boton_descarga_directa() {
     if ( !is_user_logged_in() ) return;
 
     global $product;
+    if ( !$product ) return;
+
     //si el producto es descargable
     if ( !$product->is_downloadable() ) return;
 
@@ -54,8 +56,8 @@ function mdd_mostrar_boton_descarga_directa() {
     $creditos_diario = mdd_get_limite_descargas_diaria($user_id);
     $creditos_disponibles = $creditos_diario - $usados;
     $creditos_despues_descarga = max(0, $creditos_disponibles - ($usara_credito ? 1 : 0 ));
+    
     if ( $creditos_disponibles <= 0 && !$ya_descargo) {
-        // echo '<p><strong>Has alcanzado tu limite diario de descargas.</strong></p>';
         echo '<div style="border-left: 4px solid #cc0000; padding: 10px; background-color: #fff0f0; color: #cc0000; margin-bottom: 20px;">
             <strong>Limite:</strong> Has alcanzado tu limite diario de descargas. Ya no tiene creditos por el dia de hoy
         </div>';
@@ -66,23 +68,32 @@ function mdd_mostrar_boton_descarga_directa() {
         return;
     }
 
-    //boton de descarga
+    // Verificamos si hay archivos nativos O URL externa
     $files = $product->get_downloads();
-    if ( !empty($files) ) {
-        echo '<div style="background:#ffe0b2;padding:15px;border-radius:8px;margin-top:20px;">';
-         echo '<p>Descarga este producto usando <strong>' . ($usara_credito ? '1' : '0' ) . ' crédito</strong></p>';
-        echo '<p><strong>Tus créditos disponibles: </strong>' . $creditos_disponibles . '</p>';
-        echo '<p><strong>Créditos despues de esta descarga: </strong>' . $creditos_despues_descarga . '</p>';
-        foreach ($files as $file) {
-            $download_url = add_query_arg( 'mdd_descargar', $product_id, site_url() );
-            echo '<a class="button alt" style="margin-top:5px;" href="' . esc_url($download_url) . '">';
-            echo 'Descargar';
-            echo '</a>';         
-        }   
-        echo '</div>';
+    $external_url = $product->get_meta( '_mdd_url_descarga_externa' );
+    
+    // Si NO hay archivos Y NO hay URL externa, no mostramos nada
+    if ( empty($files) && empty($external_url) ) {
+        return;
     }
-}
 
+    // Renderizado del cuadro
+    echo '<div style="background:#ffe0b2;padding:15px;border-radius:8px;margin-top:20px;">';
+    echo '<p>Descarga este producto usando <strong>' . ($usara_credito ? '1' : '0' ) . ' crédito</strong></p>';
+    echo '<p><strong>Tus créditos disponibles: </strong>' . $creditos_disponibles . '</p>';
+    echo '<p><strong>Créditos despues de esta descarga: </strong>' . $creditos_despues_descarga . '</p>';
+    
+    // Generamos el enlace de descarga que apunta a nuestro interceptor
+    // El interceptor ya sabe redirigir a URL externa si no hay archivos.
+    $download_url = add_query_arg( 'mdd_descargar', $product_id, site_url() );
+    
+    // Mostramos el botón
+    echo '<a class="button alt" style="margin-top:5px;" href="' . esc_url($download_url) . '">';
+    echo 'Descargar';
+    echo '</a>';        
+      
+    echo '</div>';
+}
 add_action( 'woocommerce_single_product_summary', function() {
     global $product;
 
